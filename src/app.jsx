@@ -902,6 +902,7 @@ function App() {
   const viewRef = useRef("menu");
   const lastHashRef = useRef(null);
   const codeHashRef = useRef(null);
+  const commitmentPromiseChain = useRef(Promise.resolve(null));
   const replayProofRef = useRef(null);
   useEffect(() => {
     window.room = new window.WebsimSocket();
@@ -929,6 +930,7 @@ function App() {
     const initialHash = await sha256(seed);
     lastHashRef.current = initialHash;
     setLastHash(initialHash);
+    commitmentPromiseChain.current = Promise.resolve(initialHash);
     setView("game");
     setScore(0);
     setIsHashing(false);
@@ -952,9 +954,27 @@ function App() {
     const input = { jump: keys.current.jump };
     const newState = engine.tick(input);
     render(newState);
+    const tickCount = engine.tickCount;
+    const difficulty = getDifficulty(newState);
+    const serialized = serializeStateForHashing(tickCount, input, newState);
+    const codeHash = codeHashRef.current;
+    const prevPromise = commitmentPromiseChain.current;
+    const thisPromise = prevPromise.then((prevHash) => {
+      return sha256(prevHash + "|" + codeHash + "|" + serialized);
+    });
+    commitmentPromiseChain.current = thisPromise;
+    thisPromise.then((hash) => {
+      if (engineRef.current && !engineRef.current.gameOver) {
+        lastHashRef.current = hash;
+        setLastHash(hash);
+      }
+    });
     inputsRef.current.push({
       input,
+      difficulty,
+      commitmentPromise: thisPromise,
       state: JSON.parse(JSON.stringify(newState))
+      // Store state for debugging/replay if needed
     });
     setScore(newState.score);
     if (engine.gameOver) {
@@ -1055,30 +1075,31 @@ function App() {
     setMiningProgress(0);
     const engine = engineRef.current;
     const initialHash = await sha256(engine.seed);
-    let previousHash = initialHash;
-    const codeHash = codeHashRef.current;
+    const committedInputs = await Promise.all(inputsRef.current.map(async (item) => ({
+      ...item,
+      commitment: await item.commitmentPromise
+    })));
     const worker = createMiningWorker();
-    const totalTicks = inputsRef.current.length;
+    const totalTicks = committedInputs.length;
     const minedInputs = [];
+    let finalPoWHash = "";
     for (let i = 0; i < totalTicks; i++) {
-      const tick = inputsRef.current[i];
-      const difficulty = getDifficulty(tick.state);
-      const serialized = serializeStateForHashing(i + 1, tick.input, tick.state);
-      const prefix = `${previousHash}|${codeHash}|${serialized}|`;
+      const item = committedInputs[i];
       const minedResult = await new Promise((resolve) => {
         worker.onmessage = (e) => resolve(e.data);
         worker.postMessage({
           id: i,
-          prefix,
-          difficulty
+          prefix: item.commitment,
+          // Commitment is the prefix
+          difficulty: item.difficulty
         });
       });
-      previousHash = minedResult.hash;
+      finalPoWHash = minedResult.hash;
       minedInputs.push({
-        input: tick.input,
+        input: item.input,
         hash: minedResult.hash,
         nonce: minedResult.nonce,
-        difficulty
+        difficulty: item.difficulty
       });
       setLastHash(minedResult.hash);
       setMiningProgress((i + 1) / totalTicks);
@@ -1090,8 +1111,8 @@ function App() {
       seed: engine.seed,
       finalScore: engine.state.score,
       initialHash,
-      finalHash: previousHash,
-      codeHash,
+      finalHash: finalPoWHash,
+      codeHash: codeHashRef.current,
       inputs: minedInputs
     };
     setFinalProof(proof);
@@ -1172,7 +1193,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 745,
+        lineNumber: 773,
         columnNumber: 13
       },
       this
@@ -1191,7 +1212,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 752,
+        lineNumber: 780,
         columnNumber: 33
       },
       this
@@ -1209,7 +1230,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 761,
+        lineNumber: 789,
         columnNumber: 56
       },
       this
@@ -1234,7 +1255,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 769,
+        lineNumber: 797,
         columnNumber: 35
       },
       this
@@ -1249,7 +1270,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 784,
+        lineNumber: 812,
         columnNumber: 40
       },
       this
@@ -1264,20 +1285,20 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 789,
+        lineNumber: 817,
         columnNumber: 35
       },
       this
     )
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 744,
+    lineNumber: 772,
     columnNumber: 9
   }, this);
 }
 const root = createRoot(document.getElementById("app"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 798,
+  lineNumber: 826,
   columnNumber: 13
 }));

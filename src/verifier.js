@@ -39,31 +39,28 @@ export async function verifyProof(proof, onProgress) {
              return { valid: false, reason: `Difficulty too low at tick ${i}. Suspicious behavior detected.` };
         }
 
-        // 3. Reconstruct Hash Data
-        // Must match exactly what was hashed in the client (now includes nonce)
-        // Format: prevHash | codeHash | serializedState | nonce
-        // Note: The miner computes sha256(prefix + nonce).
-        // Prefix was: prevHash | codeHash | serializedState |
-        
+        // 3. Reconstruct Commitment Chain (The "Fast Chain")
+        // Previous logic: hash(prevHash + code + serialized)
         const serialized = serializeStateForHashing(i + 1, record.input, state);
-        const prefix = previousHash + '|' + codeHash + '|' + serialized + '|';
-        const dataToHash = prefix + record.nonce;
-        
-        // 4. Compute Hash
-        const calculatedHash = await sha256(dataToHash);
+        const commitment = await sha256(previousHash + '|' + codeHash + '|' + serialized);
+
+        // 4. Verify Proof of Work (The "Heavy Proof")
+        // logic: hash(commitment + nonce)
+        const dataToHash = commitment + record.nonce;
+        const calculatedPoW = await sha256(dataToHash);
         
         // 5. Verify Hash Matches Claim
-        if (calculatedHash !== record.hash) {
+        if (calculatedPoW !== record.hash) {
             return { 
                 valid: false, 
-                reason: `Hash mismatch at tick ${i}. Proof is invalid.`,
+                reason: `PoW Hash mismatch at tick ${i}. Proof is invalid.`,
                 tick: i 
             };
         }
         
         // 6. Verify Proof of Work (Leading Zeros)
         const target = '0'.repeat(record.difficulty);
-        if (!calculatedHash.startsWith(target)) {
+        if (!calculatedPoW.startsWith(target)) {
              return { 
                 valid: false, 
                 reason: `Proof of Work failed at tick ${i}. Hash does not meet difficulty target.`,
@@ -71,7 +68,8 @@ export async function verifyProof(proof, onProgress) {
             };
         }
 
-        previousHash = calculatedHash;
+        // Advance chain with the commitment, NOT the PoW hash
+        previousHash = commitment;
         
         // Update progress every 50 ticks to not spam
         if (i % 50 === 0 && onProgress) {
