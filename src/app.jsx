@@ -792,12 +792,17 @@ function App() {
   const inputsRef = useRef([]);
   const keys = useRef({ jump: false });
   const viewRef = useRef("menu");
+  const isHashingRef = useRef(false);
   useEffect(() => {
     window.room = new window.WebsimSocket();
   }, []);
   useEffect(() => {
     viewRef.current = view;
-  }, [view]);
+    isHashingRef.current = isHashing;
+    if (view === "result" && isHashing) {
+      processHashQueue();
+    }
+  }, [view, isHashing]);
   const startGame = async () => {
     const seed = Math.random().toString(36).substring(2) + Date.now().toString(36);
     engineRef.current = new GameEngine(seed);
@@ -849,9 +854,11 @@ function App() {
       worker.processing = false;
       if (worker.queue.length > 0) {
         if (viewRef.current !== "game") setTimeout(processHashQueue, 0);
-      } else if (viewRef.current !== "game" && isHashing) {
+      } else if (viewRef.current !== "game" && isHashingRef.current) {
         finalizeGame();
       }
+    } else if (viewRef.current !== "game" && isHashingRef.current) {
+      finalizeGame();
     }
   };
   const gameLoop = () => {
@@ -959,12 +966,15 @@ function App() {
   };
   const endGame = () => {
     cancelAnimationFrame(requestRef.current);
+    viewRef.current = "result";
+    isHashingRef.current = true;
     setIsHashing(true);
     setView("result");
     processHashQueue();
   };
   const finalizeGame = async () => {
-    setIsHashing(false);
+    if (!isHashingRef.current) return;
+    isHashingRef.current = false;
     const engine = engineRef.current;
     const worker = hashWorkerRef.current;
     const proof = {
@@ -977,6 +987,7 @@ function App() {
       inputs: inputsRef.current
     };
     setFinalProof(proof);
+    setIsHashing(false);
   };
   const submitScore = async () => {
     if (!finalProof) return;
@@ -1056,7 +1067,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 698,
+        lineNumber: 717,
         columnNumber: 13
       },
       this
@@ -1072,7 +1083,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 705,
+        lineNumber: 724,
         columnNumber: 33
       },
       this
@@ -1090,7 +1101,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 711,
+        lineNumber: 730,
         columnNumber: 56
       },
       this
@@ -1112,30 +1123,30 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 719,
+        lineNumber: 738,
         columnNumber: 35
       },
       this
     ),
     view === "leaderboard" && /* @__PURE__ */ jsxDEV(Leaderboard, { onClose: () => setView("menu") }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 731,
+      lineNumber: 750,
       columnNumber: 40
     }, this),
     view === "verify" && /* @__PURE__ */ jsxDEV(Verifier, { onClose: () => setView("menu") }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 733,
+      lineNumber: 752,
       columnNumber: 35
     }, this)
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 697,
+    lineNumber: 716,
     columnNumber: 9
   }, this);
 }
 const root = createRoot(document.getElementById("app"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 739,
+  lineNumber: 758,
   columnNumber: 13
 }));
