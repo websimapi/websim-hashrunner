@@ -1,6 +1,6 @@
 import { GameEngine, GAME_CONSTANTS } from './engine.js';
 import { SeededRNG } from './rng.js';
-import { sha256, serializeStateForHashing } from './crypto.js';
+import { sha256, serializeStateForHashing, getDifficulty } from './crypto.js';
 
 /**
  * Replays a game proof to verify its validity.
@@ -14,6 +14,11 @@ export async function verifyProof(proof, onProgress) {
     
     // Compute Code Hash for integrity check
     const codeHash = await sha256(GameEngine.toString() + SeededRNG.toString());
+    
+    // Verify Code Hash matches proof (if present)
+    if (proof.codeHash && proof.codeHash !== codeHash) {
+        return { valid: false, reason: "Code Integrity Check Failed: Game code has been modified." };
+    }
 
     // Safety check on lengths
     if (!proof.inputs || !proof.inputs.length) {
@@ -28,23 +33,40 @@ export async function verifyProof(proof, onProgress) {
         // 1. Run Logic
         const state = engine.tick(record.input);
         
-        // 2. Reconstruct Hash Data
-        // Must match exactly what was hashed in the client
-        const dataToHash = previousHash + '|' + codeHash + '|' + serializeStateForHashing(i + 1, record.input, state);
+        // 2. Check Difficulty Requirement
+        const expectedDiff = getDifficulty(state);
+        if ((record.difficulty || 0) < expectedDiff) {
+             return { valid: false, reason: `Difficulty too low at tick ${i}. Suspicious behavior detected.` };
+        }
+
+        // 3. Reconstruct Hash Data
+        // Must match exactly what was hashed in the client (now includes nonce)
+        // Format: prevHash | codeHash | serializedState | nonce
+        // Note: The miner computes sha256(prefix + nonce).
+        // Prefix was: prevHash | codeHash | serializedState |
         
-        // 3. Compute Hash
+        const serialized = serializeStateForHashing(i + 1, record.input, state);
+        const prefix = previousHash + '|' + codeHash + '|' + serialized + '|';
+        const dataToHash = prefix + record.nonce;
+        
+        // 4. Compute Hash
         const calculatedHash = await sha256(dataToHash);
         
-        // 4. Verify
+        // 5. Verify Hash Matches Claim
         if (calculatedHash !== record.hash) {
-            console.error(`Mismatch at tick ${i}`, {
-                expected: record.hash,
-                calculated: calculatedHash,
-                data: dataToHash
-            });
             return { 
                 valid: false, 
-                reason: `Hash mismatch at tick ${i}. The gameplay logic does not match the proof signature.`,
+                reason: `Hash mismatch at tick ${i}. Proof is invalid.`,
+                tick: i 
+            };
+        }
+        
+        // 6. Verify Proof of Work (Leading Zeros)
+        const target = '0'.repeat(record.difficulty);
+        if (!calculatedHash.startsWith(target)) {
+             return { 
+                valid: false, 
+                reason: `Proof of Work failed at tick ${i}. Hash does not meet difficulty target.`,
                 tick: i 
             };
         }
