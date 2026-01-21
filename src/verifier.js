@@ -8,7 +8,27 @@ import { sha256, serializeStateForHashing, getDifficulty } from './crypto.js';
  * @param {Function} onProgress - Callback for progress updates (0-1).
  * @returns {Promise<Object>} - { valid: boolean, reason: string, score: number }
  */
-export async function verifyProof(proof, onProgress) {
+export async function verifyProof(proof, onProgress, claimedUsername = null) {
+    // 0. Identity Check (Prevent Replay Attacks)
+    if (claimedUsername) {
+        const expectedPrefix = claimedUsername + "_";
+        if (!proof.seed.startsWith(expectedPrefix)) {
+            return { valid: false, reason: `Identity Mismatch: Proof seed bound to different user` };
+        }
+    }
+
+    // 1. Time Manipulation Check (Prevent Slow-Motion)
+    if (proof.startTimestamp && proof.endTimestamp) {
+        const totalTicks = proof.inputs.length;
+        const minExpectedDuration = totalTicks * (1000 / 60); // 60 FPS
+        const actualDuration = proof.endTimestamp - proof.startTimestamp;
+        
+        // Allow up to 4x slowness (lag/low FPS) but flag extreme slow-motion
+        if (actualDuration > minExpectedDuration * 4) {
+            return { valid: false, reason: `Time Dilation Detected: Game played at suspicious speed` };
+        }
+    }
+
     const engine = new GameEngine(proof.seed);
     let previousHash = proof.initialHash; // Should be hash of seed
     
