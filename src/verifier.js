@@ -1,4 +1,5 @@
 import { GameEngine, GAME_CONSTANTS } from './engine.js';
+import { SeededRNG } from './rng.js';
 import { sha256, serializeStateForHashing } from './crypto.js';
 
 /**
@@ -11,6 +12,9 @@ export async function verifyProof(proof, onProgress) {
     const engine = new GameEngine(proof.seed);
     let previousHash = proof.initialHash; // Should be hash of seed
     
+    // Compute Code Hash for integrity check
+    const codeHash = await sha256(GameEngine.toString() + SeededRNG.toString());
+
     // Safety check on lengths
     if (!proof.inputs || !proof.inputs.length) {
         return { valid: false, reason: "No inputs provided" };
@@ -26,7 +30,7 @@ export async function verifyProof(proof, onProgress) {
         
         // 2. Reconstruct Hash Data
         // Must match exactly what was hashed in the client
-        const dataToHash = previousHash + '|' + serializeStateForHashing(i + 1, record.input, state);
+        const dataToHash = previousHash + '|' + codeHash + '|' + serializeStateForHashing(i + 1, record.input, state);
         
         // 3. Compute Hash
         const calculatedHash = await sha256(dataToHash);
