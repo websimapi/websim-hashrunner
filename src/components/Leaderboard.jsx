@@ -26,11 +26,21 @@ const Leaderboard = ({ onClose, onReplay }) => {
           if (allRawProofs.length === 0) return;
           allRawProofs.forEach((rawProof, index) => {
             if (rawProof && rawProof.finalScore !== void 0) {
+              let tickCount = 0;
+              if (rawProof.inputs && Array.isArray(rawProof.inputs)) {
+                tickCount = rawProof.inputs.length;
+              } else if (rawProof.compressedInputs) {
+                try {
+                  tickCount = Math.floor(atob(rawProof.compressedInputs).length / 5);
+                } catch (e) {
+                }
+              }
               const scoreItem = {
                 id: `${record.id}_${index}`,
                 username: record.username,
                 score: rawProof.finalScore,
                 proof: rawProof,
+                tickCount,
                 verifying: false,
                 verified_local: false,
                 timestamp: rawProof.timestamp || 0
@@ -122,7 +132,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
           className: "p-2 rounded-lg hover:bg-white/10 text-zinc-400 disabled:opacity-30 disabled:hover:bg-transparent",
           children: /* @__PURE__ */ jsxDEV(ChevronLeft, { size: 20 }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 150,
+            lineNumber: 162,
             columnNumber: 21
           })
         },
@@ -130,7 +140,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 145,
+          lineNumber: 157,
           columnNumber: 17
         }
       ),
@@ -140,14 +150,14 @@ const Leaderboard = ({ onClose, onReplay }) => {
         " ",
         /* @__PURE__ */ jsxDEV("span", { className: "text-zinc-700", children: "/" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 153,
+          lineNumber: 165,
           columnNumber: 37
         }),
         " ",
         totalPages
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 152,
+        lineNumber: 164,
         columnNumber: 17
       }),
       /* @__PURE__ */ jsxDEV(
@@ -158,7 +168,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
           className: "p-2 rounded-lg hover:bg-white/10 text-zinc-400 disabled:opacity-30 disabled:hover:bg-transparent",
           children: /* @__PURE__ */ jsxDEV(ChevronRight, { size: 20 }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 160,
+            lineNumber: 172,
             columnNumber: 21
           })
         },
@@ -166,13 +176,13 @@ const Leaderboard = ({ onClose, onReplay }) => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 155,
+          lineNumber: 167,
           columnNumber: 17
         }
       )
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 144,
+      lineNumber: 156,
       columnNumber: 13
     });
   };
@@ -183,97 +193,97 @@ const Leaderboard = ({ onClose, onReplay }) => {
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-3", children: [
         viewMode === "detail" && /* @__PURE__ */ jsxDEV("button", { onClick: handleBack, className: "mr-2 p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors", children: /* @__PURE__ */ jsxDEV(ChevronLeft, { size: 20 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 181,
+          lineNumber: 193,
           columnNumber: 33
         }) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 180,
+          lineNumber: 192,
           columnNumber: 29
         }),
         /* @__PURE__ */ jsxDEV("div", { children: [
           /* @__PURE__ */ jsxDEV("h2", { className: "text-lg font-bold text-white flex items-center gap-2", children: viewMode === "summary" ? /* @__PURE__ */ jsxDEV(Fragment, { children: [
             /* @__PURE__ */ jsxDEV("span", { className: "text-yellow-500", children: /* @__PURE__ */ jsxDEV(Trophy, { size: 18 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 188,
+              lineNumber: 200,
               columnNumber: 75
             }) }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 188,
+              lineNumber: 200,
               columnNumber: 41
             }),
             "Leaderboard"
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 187,
+            lineNumber: 199,
             columnNumber: 37
           }) : /* @__PURE__ */ jsxDEV(Fragment, { children: [
             /* @__PURE__ */ jsxDEV("div", { className: "w-6 h-6 rounded-full overflow-hidden bg-zinc-800", children: /* @__PURE__ */ jsxDEV("img", { src: allData[selectedUsername]?.avatarUrl, className: "w-full h-full object-cover", alt: "" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 194,
+              lineNumber: 206,
               columnNumber: 45
             }) }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 193,
+              lineNumber: 205,
               columnNumber: 41
             }),
             selectedUsername
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 192,
+            lineNumber: 204,
             columnNumber: 37
           }) }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 185,
+            lineNumber: 197,
             columnNumber: 29
           }),
           /* @__PURE__ */ jsxDEV("p", { className: "text-[10px] text-zinc-500 font-medium", children: viewMode === "summary" ? "GLOBAL RANKINGS \u2022 BEST SCORES" : "PLAYER HISTORY \u2022 ALL PROOFS" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 200,
+            lineNumber: 212,
             columnNumber: 29
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 184,
+          lineNumber: 196,
           columnNumber: 25
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 178,
+        lineNumber: 190,
         columnNumber: 21
       }),
       /* @__PURE__ */ jsxDEV("button", { onClick: onClose, className: "p-2 hover:bg-white/10 text-zinc-400 hover:text-white rounded-full transition-colors", children: /* @__PURE__ */ jsxDEV(X, { size: 20 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 206,
+        lineNumber: 218,
         columnNumber: 25
       }) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 205,
+        lineNumber: 217,
         columnNumber: 21
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 177,
+      lineNumber: 189,
       columnNumber: 17
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col min-h-0 bg-[#0c0c0e]", children: [
       loading ? /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col items-center justify-center gap-4 text-zinc-500", children: [
         /* @__PURE__ */ jsxDEV(Loader2, { size: 32, className: "animate-spin text-emerald-500" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 214,
+          lineNumber: 226,
           columnNumber: 29
         }),
         /* @__PURE__ */ jsxDEV("span", { className: "text-[10px] font-bold tracking-widest uppercase", children: "Syncing Ledger" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 215,
+          lineNumber: 227,
           columnNumber: 29
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 213,
+        lineNumber: 225,
         columnNumber: 26
       }) : displayedItems.length === 0 ? /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex items-center justify-center text-zinc-600 text-xs", children: "No records found" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 218,
+        lineNumber: 230,
         columnNumber: 25
       }) : /* @__PURE__ */ jsxDEV("div", { className: "flex-1 overflow-hidden p-2 space-y-1", children: displayedItems.map((item, i) => {
         const isSummary = viewMode === "summary";
@@ -286,33 +296,33 @@ const Leaderboard = ({ onClose, onReplay }) => {
             children: [
               /* @__PURE__ */ jsxDEV("div", { className: `w-8 text-center font-black text-lg ${isSummary && rank === 1 ? "text-yellow-400" : isSummary && rank === 2 ? "text-zinc-300" : isSummary && rank === 3 ? "text-amber-600" : "text-zinc-700"}`, children: isSummary ? rank <= 3 ? /* @__PURE__ */ jsxDEV(Medal, { size: 20, className: "mx-auto" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 240,
+                lineNumber: 252,
                 columnNumber: 71
               }) : rank : i + 1 }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 235,
+                lineNumber: 247,
                 columnNumber: 41
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "flex-1 min-w-0", children: isSummary ? /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-3", children: [
                 /* @__PURE__ */ jsxDEV("div", { className: "w-9 h-9 rounded-full bg-zinc-800 border border-white/10 overflow-hidden shrink-0", children: /* @__PURE__ */ jsxDEV("img", { src: item.avatarUrl, className: "w-full h-full object-cover", alt: "" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 248,
+                  lineNumber: 260,
                   columnNumber: 57
                 }) }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 247,
+                  lineNumber: 259,
                   columnNumber: 53
                 }),
                 /* @__PURE__ */ jsxDEV("div", { children: [
                   /* @__PURE__ */ jsxDEV("div", { className: "text-sm font-bold text-zinc-200 truncate", children: item.username }, void 0, false, {
                     fileName: "<stdin>",
-                    lineNumber: 251,
+                    lineNumber: 263,
                     columnNumber: 57
                   }),
                   /* @__PURE__ */ jsxDEV("div", { className: "text-[10px] text-zinc-600 font-bold uppercase tracking-wide flex items-center gap-1", children: [
                     /* @__PURE__ */ jsxDEV(History, { size: 10 }, void 0, false, {
                       fileName: "<stdin>",
-                      lineNumber: 253,
+                      lineNumber: 265,
                       columnNumber: 61
                     }),
                     " ",
@@ -320,23 +330,23 @@ const Leaderboard = ({ onClose, onReplay }) => {
                     " Runs"
                   ] }, void 0, true, {
                     fileName: "<stdin>",
-                    lineNumber: 252,
+                    lineNumber: 264,
                     columnNumber: 57
                   })
                 ] }, void 0, true, {
                   fileName: "<stdin>",
-                  lineNumber: 250,
+                  lineNumber: 262,
                   columnNumber: 53
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 246,
+                lineNumber: 258,
                 columnNumber: 49
               }) : /* @__PURE__ */ jsxDEV("div", { children: [
                 /* @__PURE__ */ jsxDEV("div", { className: "text-[10px] text-zinc-500 font-mono flex items-center gap-2 mb-0.5", children: [
                   /* @__PURE__ */ jsxDEV(Calendar, { size: 10 }, void 0, false, {
                     fileName: "<stdin>",
-                    lineNumber: 260,
+                    lineNumber: 272,
                     columnNumber: 57
                   }),
                   new Date(item.timestamp).toLocaleString(void 0, {
@@ -347,52 +357,52 @@ const Leaderboard = ({ onClose, onReplay }) => {
                   })
                 ] }, void 0, true, {
                   fileName: "<stdin>",
-                  lineNumber: 259,
+                  lineNumber: 271,
                   columnNumber: 53
                 }),
                 /* @__PURE__ */ jsxDEV("div", { className: "text-xs font-medium text-zinc-400 truncate w-32 md:w-auto", children: [
                   "v",
                   item.proof.version,
                   " \u2022 ",
-                  item.proof.inputs?.length || "?",
+                  item.tickCount,
                   " Ticks"
                 ] }, void 0, true, {
                   fileName: "<stdin>",
-                  lineNumber: 265,
+                  lineNumber: 277,
                   columnNumber: 53
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 258,
+                lineNumber: 270,
                 columnNumber: 49
               }) }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 244,
+                lineNumber: 256,
                 columnNumber: 41
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "text-right px-3", children: [
                 /* @__PURE__ */ jsxDEV("div", { className: "text-lg font-black text-emerald-400 tabular-nums leading-none", children: isSummary ? item.bestScore : item.score }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 274,
+                  lineNumber: 286,
                   columnNumber: 45
                 }),
                 /* @__PURE__ */ jsxDEV("div", { className: "text-[9px] text-zinc-600 font-bold uppercase tracking-wider", children: "PTS" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 277,
+                  lineNumber: 289,
                   columnNumber: 45
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 273,
+                lineNumber: 285,
                 columnNumber: 41
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "flex gap-2 pl-2 border-l border-white/5", children: isSummary ? /* @__PURE__ */ jsxDEV("button", { className: "p-2 text-zinc-500 group-hover:text-white transition-colors", children: /* @__PURE__ */ jsxDEV(ChevronRight, { size: 18 }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 284,
+                lineNumber: 296,
                 columnNumber: 53
               }) }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 283,
+                lineNumber: 295,
                 columnNumber: 49
               }) : /* @__PURE__ */ jsxDEV(Fragment, { children: [
                 /* @__PURE__ */ jsxDEV(
@@ -406,7 +416,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
                     title: "Replay",
                     children: /* @__PURE__ */ jsxDEV(Eye, { size: 16 }, void 0, false, {
                       fileName: "<stdin>",
-                      lineNumber: 293,
+                      lineNumber: 305,
                       columnNumber: 57
                     })
                   },
@@ -414,17 +424,17 @@ const Leaderboard = ({ onClose, onReplay }) => {
                   false,
                   {
                     fileName: "<stdin>",
-                    lineNumber: 288,
+                    lineNumber: 300,
                     columnNumber: 53
                   }
                 ),
                 item.verified_local ? /* @__PURE__ */ jsxDEV("div", { className: "p-2 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/20", children: /* @__PURE__ */ jsxDEV(ShieldCheck, { size: 16 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 297,
+                  lineNumber: 309,
                   columnNumber: 61
                 }) }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 296,
+                  lineNumber: 308,
                   columnNumber: 57
                 }) : /* @__PURE__ */ jsxDEV(
                   "button",
@@ -438,11 +448,11 @@ const Leaderboard = ({ onClose, onReplay }) => {
                     title: "Verify",
                     children: item.verifying ? /* @__PURE__ */ jsxDEV(Loader2, { size: 16, className: "animate-spin" }, void 0, false, {
                       fileName: "<stdin>",
-                      lineNumber: 306,
+                      lineNumber: 318,
                       columnNumber: 79
                     }) : /* @__PURE__ */ jsxDEV(ShieldCheck, { size: 16 }, void 0, false, {
                       fileName: "<stdin>",
-                      lineNumber: 306,
+                      lineNumber: 318,
                       columnNumber: 128
                     })
                   },
@@ -450,17 +460,17 @@ const Leaderboard = ({ onClose, onReplay }) => {
                   false,
                   {
                     fileName: "<stdin>",
-                    lineNumber: 300,
+                    lineNumber: 312,
                     columnNumber: 57
                   }
                 )
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 287,
+                lineNumber: 299,
                 columnNumber: 49
               }) }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 281,
+                lineNumber: 293,
                 columnNumber: 41
               })
             ]
@@ -469,28 +479,28 @@ const Leaderboard = ({ onClose, onReplay }) => {
           true,
           {
             fileName: "<stdin>",
-            lineNumber: 226,
+            lineNumber: 238,
             columnNumber: 37
           }
         );
       }) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 220,
+        lineNumber: 232,
         columnNumber: 25
       }),
       renderPagination(currentList.length)
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 211,
+      lineNumber: 223,
       columnNumber: 17
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 174,
+    lineNumber: 186,
     columnNumber: 13
   }) }, void 0, false, {
     fileName: "<stdin>",
-    lineNumber: 173,
+    lineNumber: 185,
     columnNumber: 9
   });
 };
