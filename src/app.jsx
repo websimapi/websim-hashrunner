@@ -226,8 +226,16 @@ function App() {
       setMiningProgress((i + 1) / committedInputs.length);
     }
     terminateMiningWorker();
+    let username = "anonymous";
+    try {
+      const user = await window.websim.getCurrentUser();
+      if (user) username = user.username;
+    } catch (e) {
+      console.warn("No user found");
+    }
     const proof = {
       version: GAME_VERSION,
+      username,
       timestamp: Date.now(),
       startTimestamp: startTimeRef.current,
       endTimestamp: Date.now(),
@@ -244,13 +252,20 @@ function App() {
   const submitScore = async () => {
     if (!finalProof) return;
     try {
-      await window.room.collection("high_scores").create({
-        score: finalProof.finalScore,
-        proof: finalProof,
-        game_version: GAME_VERSION,
-        verified_local: false,
-        username: (await window.websim.getCurrentUser()).username
-      });
+      const currentUser = await window.websim.getCurrentUser();
+      const username = currentUser.username;
+      const records = await window.room.collection("player_records_v1").filter({ username }).getList();
+      if (records.length > 0) {
+        const record = records[0];
+        const updatedProofs = [...record.proofs || [], finalProof];
+        await window.room.collection("player_records_v1").update(record.id, {
+          proofs: updatedProofs
+        });
+      } else {
+        await window.room.collection("player_records_v1").create({
+          proofs: [finalProof]
+        });
+      }
       alert("Score secured on ledger!");
       setView("menu");
     } catch (e) {
@@ -316,7 +331,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 413,
+        lineNumber: 436,
         columnNumber: 13
       },
       this
@@ -336,7 +351,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 420,
+        lineNumber: 443,
         columnNumber: 33
       },
       this
@@ -354,7 +369,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 430,
+        lineNumber: 453,
         columnNumber: 56
       },
       this
@@ -379,7 +394,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 438,
+        lineNumber: 461,
         columnNumber: 35
       },
       this
@@ -394,7 +409,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 453,
+        lineNumber: 476,
         columnNumber: 40
       },
       this
@@ -410,20 +425,20 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 458,
+        lineNumber: 481,
         columnNumber: 35
       },
       this
     )
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 412,
+    lineNumber: 435,
     columnNumber: 9
   }, this);
 }
 const root = createRoot(document.getElementById("app"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 468,
+  lineNumber: 491,
   columnNumber: 13
 }));
