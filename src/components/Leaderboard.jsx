@@ -9,7 +9,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
   const [viewMode, setViewMode] = useState("summary");
   const [selectedUsername, setSelectedUsername] = useState(null);
   const [page, setPage] = useState(0);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 5;
   const handleUserClick = (username) => {
     setSelectedUsername(username);
     setPage(0);
@@ -119,7 +119,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
         fileName: "<stdin>",
         lineNumber: 87,
         columnNumber: 25
-      }) : /* @__PURE__ */ jsxDEV("div", { className: "flex-1 overflow-hidden p-2 space-y-1", children: displayedItems.map((item, i) => {
+      }) : /* @__PURE__ */ jsxDEV("div", { className: "flex-1 overflow-y-auto no-scrollbar p-2 space-y-1", children: displayedItems.map((item, i) => {
         const rank = page * ITEMS_PER_PAGE + i + 1;
         return /* @__PURE__ */ jsxDEV(
           LeaderboardRow,
@@ -132,7 +132,7 @@ const Leaderboard = ({ onClose, onReplay }) => {
             onVerify: verifyScore,
             selectedUsername
           },
-          item.username || item.id,
+          item.id || item.username,
           false,
           {
             fileName: "<stdin>",
