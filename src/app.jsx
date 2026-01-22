@@ -889,6 +889,37 @@ const Verifier = ({ onClose, initialProof }) => {
     columnNumber: 9
   });
 };
+let miningWorkerPool = null;
+let miningQueue = [];
+let processingMining = false;
+function mineProofOfWork(commitment, difficulty) {
+  return new Promise((resolve) => {
+    miningQueue.push({ commitment, difficulty, resolve });
+    if (!processingMining) {
+      processMiningQueue();
+    }
+  });
+}
+async function processMiningQueue() {
+  if (miningQueue.length === 0) {
+    processingMining = false;
+    return;
+  }
+  processingMining = true;
+  if (!miningWorkerPool) {
+    miningWorkerPool = createMiningWorker();
+  }
+  const task = miningQueue.shift();
+  miningWorkerPool.onmessage = (e) => {
+    task.resolve(e.data);
+    processMiningQueue();
+  };
+  miningWorkerPool.postMessage({
+    id: Math.random(),
+    prefix: task.commitment,
+    difficulty: task.difficulty
+  });
+}
 function App() {
   const [view, setView] = useState("menu");
   const [score, setScore] = useState(0);
@@ -974,10 +1005,14 @@ function App() {
         setLastHash(hash);
       }
     });
+    const miningPromise = thisPromise.then(async (commitment) => {
+      return mineProofOfWork(commitment, difficulty);
+    });
     inputsRef.current.push({
       input,
       difficulty,
       commitmentPromise: thisPromise,
+      miningPromise,
       state: JSON.parse(JSON.stringify(newState))
       // Store state for debugging/replay if needed
     });
@@ -1084,21 +1119,11 @@ function App() {
       ...item,
       commitment: await item.commitmentPromise
     })));
-    const worker = createMiningWorker();
-    const totalTicks = committedInputs.length;
     const minedInputs = [];
     let finalPoWHash = "";
-    for (let i = 0; i < totalTicks; i++) {
+    for (let i = 0; i < committedInputs.length; i++) {
       const item = committedInputs[i];
-      const minedResult = await new Promise((resolve) => {
-        worker.onmessage = (e) => resolve(e.data);
-        worker.postMessage({
-          id: i,
-          prefix: item.commitment,
-          // Commitment is the prefix
-          difficulty: item.difficulty
-        });
-      });
+      const minedResult = await item.miningPromise;
       finalPoWHash = minedResult.hash;
       minedInputs.push({
         input: item.input,
@@ -1107,9 +1132,14 @@ function App() {
         difficulty: item.difficulty
       });
       setLastHash(minedResult.hash);
-      setMiningProgress((i + 1) / totalTicks);
+      setMiningProgress((i + 1) / committedInputs.length);
     }
-    worker.terminate();
+    if (miningWorkerPool) {
+      miningWorkerPool.terminate();
+      miningWorkerPool = null;
+      miningQueue = [];
+      processingMining = false;
+    }
     const proof = {
       version: GAME_VERSION,
       timestamp: Date.now(),
@@ -1200,7 +1230,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 783,
+        lineNumber: 828,
         columnNumber: 13
       },
       this
@@ -1219,7 +1249,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 790,
+        lineNumber: 835,
         columnNumber: 33
       },
       this
@@ -1237,7 +1267,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 799,
+        lineNumber: 844,
         columnNumber: 56
       },
       this
@@ -1262,7 +1292,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 807,
+        lineNumber: 852,
         columnNumber: 35
       },
       this
@@ -1277,7 +1307,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 822,
+        lineNumber: 867,
         columnNumber: 40
       },
       this
@@ -1292,20 +1322,20 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 827,
+        lineNumber: 872,
         columnNumber: 35
       },
       this
     )
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 782,
+    lineNumber: 827,
     columnNumber: 9
   }, this);
 }
 const root = createRoot(document.getElementById("app"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 836,
+  lineNumber: 881,
   columnNumber: 13
 }));
