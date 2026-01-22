@@ -69,8 +69,8 @@ export async function verifyProof(proof, onProgress, claimedUsername = null) {
         const dataToHash = commitment + record.nonce;
         const calculatedPoW = await sha256(dataToHash);
         
-        // 5. Verify Hash Matches Claim
-        if (calculatedPoW !== record.hash) {
+        // 5. Verify Hash Matches Claim (Optional, as hash might be omitted for compression)
+        if (record.hash && calculatedPoW !== record.hash) {
             return { 
                 valid: false, 
                 reason: `PoW Hash mismatch at tick ${i}. Proof is invalid.`,

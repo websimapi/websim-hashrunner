@@ -10,6 +10,7 @@ import { ResultScreen } from "./components/ResultScreen.jsx";
 import { Leaderboard } from "./components/Leaderboard.jsx";
 import { Verifier } from "./components/Verifier.jsx";
 import { mineProofOfWork, terminateMiningWorker } from "./mining.js";
+import { compressProof } from "./compression.js";
 const GAME_VERSION = "1.1.0";
 function App() {
   const [view, setView] = useState("menu");
@@ -254,23 +255,44 @@ function App() {
     try {
       const currentUser = await window.websim.getCurrentUser();
       const username = currentUser.username;
+      const compressed = compressProof(finalProof);
       const records = await window.room.collection("player_records_v1").filter({ username }).getList();
       if (records.length > 0) {
         const record = records[0];
-        const updatedProofs = [...record.proofs || [], finalProof];
+        let targetCol = "proofs";
+        let currentData = record.proofs || [];
+        let colIndex = 1;
+        while (true) {
+          const colName = colIndex === 1 ? "proofs" : `proofs_${colIndex}`;
+          const colData = record[colName];
+          if (!colData) {
+            targetCol = colName;
+            currentData = [];
+            break;
+          }
+          const size = JSON.stringify(colData).length;
+          if (size < 2e5) {
+            targetCol = colName;
+            currentData = colData;
+            break;
+          }
+          colIndex++;
+          if (colIndex > 20) break;
+        }
+        const updatedProofs = [...currentData, compressed];
         await window.room.collection("player_records_v1").update(record.id, {
-          proofs: updatedProofs
+          [targetCol]: updatedProofs
         });
       } else {
         await window.room.collection("player_records_v1").create({
-          proofs: [finalProof]
+          proofs: [compressed]
         });
       }
       alert("Score secured on ledger!");
       setView("menu");
     } catch (e) {
       console.error(e);
-      alert("Submission error");
+      alert("Submission error: " + e.message);
     }
   };
   useEffect(() => {
@@ -331,7 +353,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 436,
+        lineNumber: 475,
         columnNumber: 13
       },
       this
@@ -351,7 +373,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 443,
+        lineNumber: 482,
         columnNumber: 33
       },
       this
@@ -369,7 +391,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 453,
+        lineNumber: 492,
         columnNumber: 56
       },
       this
@@ -394,7 +416,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 461,
+        lineNumber: 500,
         columnNumber: 35
       },
       this
@@ -409,7 +431,7 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 476,
+        lineNumber: 515,
         columnNumber: 40
       },
       this
@@ -425,20 +447,20 @@ function App() {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 481,
+        lineNumber: 520,
         columnNumber: 35
       },
       this
     )
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 435,
+    lineNumber: 474,
     columnNumber: 9
   }, this);
 }
 const root = createRoot(document.getElementById("app"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 491,
+  lineNumber: 530,
   columnNumber: 13
 }));
