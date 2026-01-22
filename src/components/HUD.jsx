@@ -1,101 +1,123 @@
 import { jsxDEV } from "react/jsx-dev-runtime";
 import React from "react";
-const HUD = ({ score, hash, isVerified, tick, isReplay }) => /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-8", children: [
-  /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between items-start", children: [
-    /* @__PURE__ */ jsxDEV("div", { children: [
-      /* @__PURE__ */ jsxDEV("div", { className: "text-[10px] font-bold text-zinc-500 tracking-wider mb-1", children: "SCORE" }, void 0, false, {
+import { Activity, ShieldCheck, PlayCircle } from "lucide-react";
+const HUD = ({ score, hash, isVerified, tick, isReplay }) => /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-8 safe-area-inset-top", children: [
+  /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between items-center w-full", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxDEV("div", { className: "bg-black/40 backdrop-blur-md rounded-full px-4 py-2 border border-white/5 flex items-center gap-3", children: [
+      /* @__PURE__ */ jsxDEV("span", { className: "text-[10px] font-bold text-zinc-500 uppercase tracking-wider", children: "Score" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 7,
-        columnNumber: 17
+        lineNumber: 11,
+        columnNumber: 21
       }),
-      /* @__PURE__ */ jsxDEV("div", { className: "text-4xl md:text-6xl font-black text-white tabular-nums tracking-tighter drop-shadow-lg", children: score.toString().padStart(6, "0") }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("span", { className: "text-2xl font-black text-white tabular-nums tracking-tight leading-none", children: Math.floor(score).toLocaleString() }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 8,
-        columnNumber: 17
+        lineNumber: 12,
+        columnNumber: 21
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 6,
+      lineNumber: 10,
+      columnNumber: 17
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 9,
       columnNumber: 13
     }),
-    /* @__PURE__ */ jsxDEV("div", { className: "flex flex-col items-end", children: isReplay ? /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-2 text-[10px] font-mono font-bold tracking-wider bg-red-500/20 backdrop-blur px-3 py-1.5 rounded-full border border-red-500/30 text-red-400 mb-2 animate-pulse", children: [
-      /* @__PURE__ */ jsxDEV("div", { className: "w-1.5 h-1.5 rounded-full bg-red-500" }, void 0, false, {
+    /* @__PURE__ */ jsxDEV("div", { className: "flex flex-col items-end gap-2", children: isReplay ? /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-2 bg-red-500/10 backdrop-blur-md border border-red-500/20 px-3 py-1.5 rounded-full text-red-400 animate-pulse", children: [
+      /* @__PURE__ */ jsxDEV(PlayCircle, { size: 12 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 16,
+        lineNumber: 22,
         columnNumber: 25
       }),
-      "REPLAY MODE"
+      /* @__PURE__ */ jsxDEV("span", { className: "text-[10px] font-bold tracking-wide", children: "REPLAY" }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 23,
+        columnNumber: 25
+      })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 15,
+      lineNumber: 21,
       columnNumber: 21
-    }) : /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-2 text-[10px] font-mono font-bold tracking-wider bg-black/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10 text-zinc-300 mb-2", children: [
-      /* @__PURE__ */ jsxDEV("div", { className: `w-1.5 h-1.5 rounded-full ${isVerified ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-amber-400 animate-pulse"}` }, void 0, false, {
+    }) : /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-2 bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 px-3 py-1.5 rounded-full text-emerald-400", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: `w-1.5 h-1.5 rounded-full ${isVerified ? "bg-emerald-400 shadow-[0_0_8px_currentColor]" : "bg-amber-400 animate-pulse"}` }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 21,
+        lineNumber: 27,
         columnNumber: 25
       }),
-      isVerified ? "VERIFIED" : "SYNCING"
+      /* @__PURE__ */ jsxDEV("span", { className: "text-[10px] font-bold tracking-wide", children: isVerified ? "VERIFIED" : "SYNCING" }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 28,
+        columnNumber: 25
+      })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 20,
+      lineNumber: 26,
       columnNumber: 21
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 13,
+      lineNumber: 19,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 5,
+    lineNumber: 7,
     columnNumber: 9
   }),
-  !isReplay && /* @__PURE__ */ jsxDEV("div", { className: "self-end max-w-[200px] md:max-w-xs", children: /* @__PURE__ */ jsxDEV("div", { className: "bg-black/60 backdrop-blur px-3 py-2 rounded border border-white/5", children: [
-    /* @__PURE__ */ jsxDEV("div", { className: "text-[9px] text-zinc-500 font-bold uppercase mb-1 flex justify-between", children: [
-      /* @__PURE__ */ jsxDEV("span", { children: [
-        "BLOCK ",
-        tick
+  /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end items-end w-full pb-safe", children: [
+    !isReplay && hash && /* @__PURE__ */ jsxDEV("div", { className: "hidden md:block opacity-50 hover:opacity-100 transition-opacity", children: /* @__PURE__ */ jsxDEV("div", { className: "bg-black/60 backdrop-blur rounded-lg border border-white/5 p-2 max-w-[180px]", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between items-center mb-1", children: [
+        /* @__PURE__ */ jsxDEV("span", { className: "text-[9px] font-bold text-zinc-500", children: "SHA-256" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 40,
+          columnNumber: 30
+        }),
+        /* @__PURE__ */ jsxDEV("span", { className: "text-[9px] font-mono text-zinc-600", children: [
+          "#",
+          tick
+        ] }, void 0, true, {
+          fileName: "<stdin>",
+          lineNumber: 41,
+          columnNumber: 30
+        })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 32,
+        lineNumber: 39,
         columnNumber: 25
       }),
-      /* @__PURE__ */ jsxDEV("span", { className: "text-emerald-500", children: "SHA-256" }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("div", { className: "font-mono text-[8px] text-zinc-400 break-all leading-tight", children: [
+        hash.substring(0, 32),
+        "..."
+      ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 33,
+        lineNumber: 43,
         columnNumber: 25
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 31,
+      lineNumber: 38,
       columnNumber: 21
-    }),
-    /* @__PURE__ */ jsxDEV("div", { className: "font-mono text-[9px] text-emerald-500/60 break-all leading-tight", children: hash || "INIT_GENESIS..." }, void 0, false, {
+    }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 35,
+      lineNumber: 37,
+      columnNumber: 18
+    }),
+    isReplay && /* @__PURE__ */ jsxDEV("div", { className: "w-full text-center mb-8", children: /* @__PURE__ */ jsxDEV("span", { className: "bg-black/40 backdrop-blur px-4 py-2 rounded-full text-white/50 text-xs font-medium border border-white/5", children: "Tap anywhere to exit replay" }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 52,
       columnNumber: 21
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 51,
+      columnNumber: 18
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 30,
-    columnNumber: 17
-  }) }, void 0, false, {
-    fileName: "<stdin>",
-    lineNumber: 29,
-    columnNumber: 13
-  }),
-  isReplay && /* @__PURE__ */ jsxDEV("div", { className: "self-center mt-auto mb-12", children: /* @__PURE__ */ jsxDEV("div", { className: "text-white/50 text-xs font-mono tracking-widest uppercase", children: "Tap to cancel replay" }, void 0, false, {
-    fileName: "<stdin>",
-    lineNumber: 44,
-    columnNumber: 17
-  }) }, void 0, false, {
-    fileName: "<stdin>",
-    lineNumber: 43,
-    columnNumber: 14
+    lineNumber: 35,
+    columnNumber: 9
   })
 ] }, void 0, true, {
   fileName: "<stdin>",
-  lineNumber: 4,
+  lineNumber: 5,
   columnNumber: 5
 });
 export {
